@@ -1,60 +1,66 @@
-<template>
-  <div id="app">
-    <img src="./assets/logo.png">
-    <h1>{{ msg }}</h1>
-    <h2>Essential Links</h2>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank">Twitter</a></li>
-    </ul>
-    <h2>Ecosystem</h2>
-    <ul>
-      <li><a href="http://router.vuejs.org/" target="_blank">vue-router</a></li>
-      <li><a href="http://vuex.vuejs.org/" target="_blank">vuex</a></li>
-      <li><a href="http://vue-loader.vuejs.org/" target="_blank">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank">awesome-vue</a></li>
-    </ul>
-  </div>
+<template lang="pug">
+	#app
+		header
+			.navbar-fixed
+				nav
+					.nav-wrapper
+						a.brand-logo.left.hide-on-med-and-down Hola
+						a.brand-logo.center.hide-on-large-only Hola
+						.button-collapse.pointer.hide-on-large-only(
+							data-activates="NavMobile", 
+							data-sidenav="left", 
+							data-closeonclick="false")
+							i.material-icons menu
+						ul.right.show-on-large-and-down
+							li
+								a.dropdown-button.pointer(data-activates='MoreOptions', dropdown data-hover="true")
+									i.material-icons more_vert
+
+			ul#MoreOptions.dropdown-content
+				li
+					a Ver Perfil
+				li.divider
+				li
+					a(data-target="ModalSignOut") Salir
+
+
+			ul#NavMobile.side-nav.fixed
+				li
+					.userView
+						.background
+							img(src='./assets/images/background-nav-profile.jpg')
+						a(href='#')
+							img.circle(src='', title='sd')
+						a(href='#')
+							span.white-text.name aaaa
+						a(href='#')
+							span.white-text.email sss
+				li
+					a(href='/')
+						i.material-icons home
+						| Inicio
+				li
+					a(href='/user')
+						i.material-icons perm_identity
+						| Usuarios
+				li(routerlinkactive='active')
+					a(routerlink='/vehicle')
+						i.material-icons directions_car
+						| Vehiculos
+				li
+					a(href='#!', data-target='ModalSignOut')
+						i.material-icons exit_to_app
+						| Salir
+
+		main
+			router-view
 </template>
 
 <script>
-export default {
-  name: 'app',
-  data () {
-    return {
-      msg: 'Welcome to Your Vue.js App'
-    }
-  }
-}
+	export default {
+		name: 'app'
+	}
 </script>
 
 <style lang="scss">
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-
-h1, h2 {
-  font-weight: normal;
-}
-
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-
-a {
-  color: #42b983;
-}
 </style>
