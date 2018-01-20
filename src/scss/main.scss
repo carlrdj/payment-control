@@ -1,0 +1,49 @@
+@import '../../node_modules/bulma/bulma.sass';
+
+.section-for-menu-fixed-top{
+	margin-top: 40px;
+}
+table tr .td-button{
+	width: 10px;
+	padding-left: 3px;
+	padding-right: 3px;
+}
+@media screen and (max-width: 600px) {
+	table tr {
+	  border: 1px solid #ddd;
+	  padding: .35em;
+	}
+	table tr .td-button{
+		width: auto;
+		text-align: center;
+	}
+	table tr:last-child td {
+	  border-bottom: 1px solid #ddd !important;
+	}
+  table thead {
+    border: none;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+  }
+  table tr {
+    border-bottom: 3px solid #ddd;
+    display: block;
+    margin-bottom: .625em;
+  }
+  table td {
+    display: block;
+    font-size: .8em;
+    text-align: right;
+  }
+  table td:before {
+    content: attr(data-label);
+    float: left;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+}
