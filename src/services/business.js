@@ -30,4 +30,10 @@ businessService.DeleteBusiness = function (ids) {
 		.catch(err => console.error(err))
 }
 
+businessService.ResetPasswordBusiness = function (ids) {
+	return paymentControlService.patch('/business/ResetPasswordBusiness', { ids })
+		.then(res => res.data)
+		.catch(err => console.error(err))
+}
+
 export default businessService

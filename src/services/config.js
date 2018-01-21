@@ -1,4 +1,4 @@
 const configService = {
-	apiUrl: 'http://servicelperu.net/payment-control'
+	apiUrl: 'http://localhost:8080/dev7/api-payment-control'
 }
 export default configService

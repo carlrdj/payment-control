@@ -9,7 +9,7 @@
 						i.fa.fa-angle-left(aria-hidden='true')
 					span Back
 		.box
-			form(@submit.prevent="saveBusiness")
+			form(@submit.prevent="showModalConfirmSaveBusiness")
 				.columns.is-multiline
 					.column.is-half
 						.field
@@ -50,7 +50,7 @@
 							label.label Email
 								span.tag.is-warning.is-pulled-right Required !
 							.control
-								input.input(type="text", placeholder="Email", v-model="company.bus_email", required, :disabled="disabled")
+								input.input(type="email", placeholder="Email", v-model="company.bus_email", required, :disabled="disabled")
 
 					.column.is-two-quarter
 						.field
@@ -63,17 +63,25 @@
 							.control
 								button.button.is-medium.is-link(type="submit", :disabled="disabled", v-bind:class="{'is-loading': disabled}") SAVE
 
-
+		p-c-modal-confirm(
+		v-on:modal-confirm-insert-business="insertBusiness",
+		v-on:modal-confirm-update-business="updateBusiness",
+		)
 </template>
 
 <script>
 	import businessService from '@/services/business'
+	import PCModalConfirm from '@/components/shared/ModalConfirm.vue'
 	export default {
+		components: {
+			PCModalConfirm
+		},
 		data () {
 			return {
 				title: 'Add business',
 				company: {},
 				notification: {},
+				modalConfirm: {},
 				disabled: false
 			}
 		},
@@ -81,32 +89,50 @@
 			const id = this.$route.params.id
 			businessService.GetBusinessById(id)
 				.then(res => {
-					if (res) { this.title = 'Edit business' }
-					this.company = res
+					if (res) {
+						this.title = 'Edit business'
+						this.company = res
+					} else {
+						this.company = {}
+					}
 				})
 		},
 		methods: {
-			saveBusiness () {
-				this.disabled = true
+			showModalConfirmSaveBusiness () {
 				if (this.company.bus_id) {
-					businessService.UpdateBusiness(this.company)
-						.then(res => {
-							this.notification = res
-							this.$bus.$emit('set-notification', this.notification)
-							if (this.notification.response) {
-								this.$router.push({ name: 'maintenance-business' })
-								this.notification = {}
-								this.disabled = false
-							}
-						})
+					this.modalConfirm.title = 'Update company'
+					this.modalConfirm.id = this.company.bus_id
+					this.modalConfirm.body = `Do you want to update ${this.company.bus_fullname}?`
+					this.modalConfirm.eventListener = 'modal-confirm-update-business'
+					this.$bus.$emit('set-modal-confirm', this.modalConfirm)
 				} else {
-					businessService.InsertBusiness(this.company)
-						.then(res => {
-							this.notification = res
-							this.$bus.$emit('set-notification', this.notification)
-							this.disabled = false
-						})
+					this.modalConfirm.title = 'Add company'
+					this.modalConfirm.id = 0
+					this.modalConfirm.body = `Do you want to add company?`
+					this.modalConfirm.eventListener = 'modal-confirm-insert-business'
+					this.$bus.$emit('set-modal-confirm', this.modalConfirm)
 				}
+			},
+			insertBusiness (id) {
+				this.disabled = true
+				businessService.InsertBusiness(this.company)
+					.then(res => {
+						this.$router.push({ name: 'maintenance-business' })
+						this.notification = res
+						this.$bus.$emit('set-notification', this.notification)
+						this.disabled = false
+					})
+			},
+			updateBusiness (id) {
+				this.disabled = true
+				businessService.UpdateBusiness(this.company)
+					.then(res => {
+						this.notification = res
+						this.$bus.$emit('set-notification', this.notification)
+						this.$router.push({ name: 'maintenance-business' })
+						this.notification = {}
+						this.disabled = false
+					})
 			}
 		}
 	}
