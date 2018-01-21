@@ -9,9 +9,10 @@
 						i.fa.fa-angle-left(aria-hidden='true')
 					span Back
 		.box
-			.columns
-				.column
-					div(data-provide="calendar")
+			.columns.is-multiline
+				.column(v-for="day in days")
+					p {{day.day}}
+					
 			form(@submit.prevent="showModalConfirmSaveCalendar")
 				.columns.is-multiline
 					.column.is-half
@@ -42,7 +43,8 @@
 				modalConfirm: {},
 				notification: {},
 				isLoading: true,
-				disabled: false
+				disabled: false,
+				days: []
 			}
 		},
 		created () {
@@ -52,6 +54,7 @@
 					this.company = res
 					this.title = `Calendar of ${this.company.bus_fullname}`
 				})
+			this.getDaysInMonth(0, 2018)
 		},
 		computed: {
 			resultMessage () {
@@ -65,6 +68,31 @@
 		methods: {
 			showModalConfirmSaveCalendar () {
 				console.log('Calendar')
+			},
+			getDaysInMonth (month, year) {
+				let date = new Date(year, month, 1)
+				let startComplete = true
+				let day = ''
+				while (date.getMonth() === month) {
+					day = new Date(date)
+					if (startComplete) {
+						this.startCompleteDays(day)
+						startComplete = false
+					}
+					this.days.push({date: day, day: day.getDay()})
+					date.setDate(date.getDate() + 1)
+				}
+				this.endCompleteDays(day)
+			},
+			startCompleteDays (day) {
+				for (var i = 0; i < day.getDay(); i++) {
+					this.days.push({date: '', day: ''})
+				}
+			},
+			endCompleteDays (day) {
+				for (var i = day.getDay(); i < 7; i++) {
+					this.days.push({date: '', day: ''})
+				}
 			}
 		}
 	}
