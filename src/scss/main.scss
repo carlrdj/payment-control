@@ -1,4 +1,5 @@
 @import '../../node_modules/bulma/bulma.sass';
+@import '../../node_modules/bulma-extensions/extensions.sass';
 
 .section-for-menu-fixed-top{
 	margin-top: 40px;
@@ -9,6 +10,22 @@ table tr .td-button{
 	padding-left: 3px;
 	padding-right: 3px;
 }
+.calendar{
+  margin: auto;
+}
+.calendar .calendar-nav{
+  background: #3273DC;
+  display: block; 
+}
+.calendar .calendar-date .date-item.is-active {
+  background: #1496ED;
+  border-color: #1496ED;
+}
+
+body::-webkit-scrollbar-track{border-left:0;background-color:#fff}
+body::-webkit-scrollbar{width:5px}
+body::-webkit-scrollbar-thumb{border-radius:9px;background-color:#3273DC}
+
 @media screen and (max-width: 600px) {
 	table tr {
 	  border: 1px solid #ddd;
@@ -48,3 +65,4 @@ table tr .td-button{
     text-transform: uppercase;
   }
 }
+

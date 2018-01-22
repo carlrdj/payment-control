@@ -15,7 +15,6 @@
 <style>
 	.footer{
 		padding: 1.5em;
-		overflow: auto;
 		position: fixed;
 		bottom: 0px;
 		width: 100%;
@@ -28,5 +27,13 @@
 		position: absolute;
 		right: -35px;
 		top: -4px;
+	}
+	@media screen and (max-width: 1100px) {
+		.fa-paw{
+			transform: rotate(-30deg);
+			position: absolute;
+			right: 150px;
+			top: -4px;
+		}		
 	}
 </style>
