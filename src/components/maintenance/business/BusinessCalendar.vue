@@ -1,49 +1,51 @@
 <template lang="pug">
-	.container
-		.columns
-			.column.is-four-fifths
-				h1.title {{ title }}
-			.column.has-text-right
-				router-link.button.is-rounded.is-danger(to="/maintenance/business")
+	.container.main-container
+		.row.bg-white.rounded.box-shadow.mb-3.pt-2.pb-2
+			.col-8
+				h2 {{ title }}
+			.col-4.d-flex.align-items-center.flex-row-reverse
+				router-link.btn.btn-link(to="/maintenance/business")
 					span.icon
-						i.fa.fa-angle-left(aria-hidden='true')
+						i.fa.fa-chevron-left(aria-hidden='true')
 					span Back
-		.box
-			.columns
-				.column.is-multiline
-					form(@submit.prevent="generateDaySelection(company.bus_payment_method)")
-						.columns
-							.column.is-6
-								.field
-									label.label Start date
-										span.tag.is-warning.is-pulled-right Required !
-									.control
-										input.input(type="date", placeholder="Start date", v-model="startDate", required, :disabled="disabled", :min="startDate")
-							.column
-								.field.is-grouped.is-grouped-centered
-									.control
-										button.button.is-medium.is-link(type="submit", :disabled="disabled", v-bind:class="{'is-loading': disabled}") GENERATE
-										a.button.is-medium.is-danger(v-on:click="resetDaySelection") RESET
-					hr
-					.column-12
-						.field.is-grouped.is-grouped-centered
-							.control
-								a.button.is-medium.is-link(:disabled="disabled", v-bind:class="{'is-loading': disabled}", v-on:click="showModalConfirmSaveScheduledDates") SAVE
 
-		.columns.is-mobile
-			.column.has-text-centered
-				.button.is-white(@click="lastYear")
+		.row.bg-white.rounded.box-shadow.mb-3.pt-4.pb-4
+			.col-12
+				form.row(@submit.prevent="generateDaySelection(company.bus_payment_method)")
+					.col-12.col-sm-6
+						.form-group
+							label(for='startDate') Start date
+								.badge.badge-primary {{ parseInt(company.bus_payment_method) | payment-method-name }}
+							input#startDate.form-control(
+								type='date',
+								v-model="startDate",
+								placeholder='Start date',
+								v-bind:disabled="disabled", 
+								:min="startDate"
+								required)
+
+					.col-12.col-sm-3.d-flex.align-items-center.justify-content-center
+						button.btn.btn-dark.btn-lg.pl-3.pr-3(type="submit", :disabled="disabled") Generate
+							i(v-bind:class="{'fa | fa-spinner | fa-pulse | fa-fw  | is-loading': disabled}")
+						.btn.btn-danger.btn-lg.ml-2.pl-3.pr-3(:disabled="disabled", v-on:click="showModalConfirmResetCalendar") Reset
+							i(v-bind:class="{'fa | fa-spinner | fa-pulse | fa-fw  | is-loading': disabled}")
+
+					.col-12.col-sm-3.d-flex.align-items-center.justify-content-center
+						.btn.btn-primary.btn-lg.pl-3.pr-3(:disabled="disabled", v-on:click="showModalConfirmSaveScheduledDates") Save
+							i(v-bind:class="{'fa | fa-spinner | fa-pulse | fa-fw  | is-loading': disabled}")
+
+		.row.bg-dark.text-white.rounded.box-shadow.mb-3.pt-2.pb-2
+			.col-12.d-flex.justify-content-between
+				.button.cursor-pointer(@click="lastYear")
 					i.fa.fa-angle-left.fa-3x(aria-hidden="true")
-			.column.has-text-centered
 				h1.title {{ year }}
-			.column.has-text-centered
-				.button.is-white(@click="nextYear")
+				.button.cursor-pointer(@click="nextYear")
 					i.fa.fa-angle-right.fa-3x(aria-hidden="true")
 
-		.columns.is-multiline
-			.column.is-4(v-for="mon in months")
+		.row.bg-white.rounded.box-shadow.pt-4.pb-2
+			.col-12.col-md-6.col-lg-4(v-for="mon in months")
 				.calendar
-					.calendar-nav 
+					.calendar-nav.bg-dark.text-white
 						.has-text-centered {{ mon.name }}
 					.calendar-container
 						.calendar-header
@@ -54,8 +56,11 @@
 							v-bind:class="{'is-disabled': monDay.disabled}")
 								button.date-item(v-bind:class="{'is-active': selectedDay(monDay.id)}", v-on:click="selectDay(monDay.id)") {{ monDay.day }}
 
+		p-c-loader(v-show="isLoading")
+
 		p-c-modal-confirm(
-		v-on:modal-confirm-insert-scheduled-dates="insertScheduledDates"
+		v-on:modal-confirm-insert-scheduled-dates="insertScheduledDates",
+		v-on:modal-confirm-reset-calendar="resetDaySelection"
 		)
 </template>
 
@@ -86,28 +91,30 @@
 			}
 		},
 		created () {
-			const id = this.$route.params.id
+			const self = this
+			const id = self.$route.params.id
 			businessService.GetBusinessById(id)
 				.then(res => {
-					this.company = res
-					this.title = `Calendar of ${this.company.bus_fullname}`
+					self.company = res
+					self.title = `Calendar of ${self.company.bus_fullname}`
 				})
-			this.getMonthDays()
+			self.getMonthDays()
 			scheduledDatesService.GetListScheduledDatesByBusinessBy(id)
 				.then(res => {
-					this.scheduledDates = res
-					for (var i = 0; i < this.scheduledDates.length; i++) {
-						let date = new Date(this.scheduledDates[i]['sch_dat_date'] + ' 00:00:00 GMT-0500')
-						this.selectedDays.push(date.getTime())
+					self.scheduledDates = res
+					for (var i = 0; i < self.scheduledDates.length; i++) {
+						let date = new Date(self.scheduledDates[i]['sch_dat_date'] + ' 00:00:00 GMT-0500')
+						self.selectedDays.push(date.getTime())
 					}
 				})
 		},
 		computed: {
 			resultMessage () {
-				if (this.employees.length === 0) {
+				const self = this
+				if (self.employees.length === 0) {
 					return `No se encontraron resultados`
 				} else {
-					return `Encontrados: ${this.employees.length}`
+					return `Encontrados: ${self.employees.length}`
 				}
 			}
 		},
@@ -116,17 +123,21 @@
 				console.log('Calendar')
 			},
 			lastYear () {
+				const self = this
 				let yearCurrent = (new Date()).getFullYear()
-				if (yearCurrent >= this.year--)	{
-					this.year = yearCurrent
+				if (yearCurrent >= self.year--)	{
+					self.year = yearCurrent
 				}
 			},
 			nextYear () {
-				this.year++
+				const self = this
+				self.year++
 			},
 			getMonthDays () {
-				for (var i = 0; i < this.months.length; i++) {
-					let date = new Date(this.year, i, 1)
+				const self = this
+				self.isLoading = true
+				for (var i = 0; i < self.months.length; i++) {
+					let date = new Date(self.year, i, 1)
 					let startComplete = true
 					let day = ''
 					let beforeDays = []
@@ -135,15 +146,16 @@
 					while (date.getMonth() === i) {
 						day = new Date(date)
 						if (startComplete) {
-							beforeDays = this.startCompleteDays(day.getDay())
+							beforeDays = self.startCompleteDays(day.getDay())
 							startComplete = false
 						}
 						days.push({id: day.getTime(), day: day.getDate(), disabled: false})
 						date.setDate(date.getDate() + 1)
 					}
-					afterDays = this.endCompleteDays(day.getDay())
-					this.monthDays.push(beforeDays.concat(days).concat(afterDays))
+					afterDays = self.endCompleteDays(day.getDay())
+					self.monthDays.push(beforeDays.concat(days).concat(afterDays))
 				}
+				self.isLoading = false
 			},
 			startCompleteDays (day) {
 				let beforeDays = []
@@ -154,73 +166,103 @@
 			},
 			endCompleteDays (day) {
 				let afterDays = []
-				for (var i = day; i < 7; i++) {
+				for (var i = day; i < 6; i++) {
 					afterDays.push({day: '', disabled: true})
 				}
 				return afterDays
 			},
 			selectDay (id) {
-				if (this.selectedDays.indexOf(id) === -1) {
-					this.selectedDays.push(id)
-				} else {
-					this.selectedDays.splice(this.selectedDays.indexOf(id), 1)
+				const self = this
+				if (id) {
+					if (self.selectedDays.indexOf(id) === -1) {
+						self.selectedDays.push(id)
+					} else {
+						self.selectedDays.splice(self.selectedDays.indexOf(id), 1)
+					}
+				}
+			},
+			selectDayAutomatic (id) {
+				const self = this
+				if (id) {
+					if (self.selectedDays.indexOf(id) === -1) {
+						self.selectedDays.push(id)
+					}
 				}
 			},
 			selectedDay (day) {
-				if (this.selectedDays.indexOf(day) !== -1) {
+				const self = this
+				if (self.selectedDays.indexOf(day) !== -1) {
 					return true
 				}
 				return false
 			},
 			generateDaySelection (paymentMethod) {
-				let selectDate = new Date(this.startDate + ' 00:00:00 GMT-0500')
-				for (var i = 0; i < this.months.length; i++) {
-					let date = new Date(this.year, i, 1)
+				const self = this
+				self.disabled = true
+				let selectDate = new Date(self.startDate + ' 00:00:00 GMT-0500')
+				for (var i = 0; i < self.months.length; i++) {
+					let date = new Date(self.year, i, 1)
 					let count = 0
 					while (date.getMonth() === i) {
 						count++
 						let day = new Date(date)
 						if (parseInt(paymentMethod) === 7 && day.getDay() === selectDate.getDay() && day >= selectDate) {
-							this.selectedDays.push(day.getTime())
+							self.selectDayAutomatic(day.getTime())
 						}
 						date.setDate(date.getDate() + 1)
 					}
 					let midMonth = Math.floor(count / 2)
 					if (parseInt(paymentMethod) === 15) {
-						if (new Date(this.year, i, midMonth) >= selectDate) {
-							this.selectedDays.push((new Date(this.year, i, midMonth)).getTime())
+						if (new Date(self.year, i, midMonth) >= selectDate) {
+							self.selectDayAutomatic((new Date(self.year, i, midMonth)).getTime())
 						}
-						this.selectedDays.push((new Date(this.year, i, count)).getTime())
+						self.selectDayAutomatic((new Date(self.year, i, count)).getTime())
 					}
 					if (parseInt(paymentMethod) === 30) {
-						this.selectedDays.push((new Date(this.year, i, count)).getTime())
+						self.selectDayAutomatic((new Date(self.year, i, count)).getTime())
 					}
 				}
+				self.disabled = false
+			},
+			showModalConfirmResetCalendar () {
+				const self = this
+				self.modalConfirm.action = 'danger'
+				self.modalConfirm.title = 'Reset calendar'
+				self.modalConfirm.data = {}
+				self.modalConfirm.body = `Do you want to reset calendar?`
+				self.modalConfirm.eventListener = 'modal-confirm-reset-calendar'
+				self.$bus.$emit('set-modal-confirm', self.modalConfirm)
 			},
 			resetDaySelection () {
-				this.selectedDays = []
+				const self = this
+				self.selectedDays = []
 			},
 			showModalConfirmSaveScheduledDates () {
-				this.modalConfirm.title = 'Save calendar'
-				this.modalConfirm.id = this.company.bus_id
-				this.modalConfirm.body = `Do you want to save calendar?`
-				this.modalConfirm.eventListener = 'modal-confirm-insert-scheduled-dates'
-				this.$bus.$emit('set-modal-confirm', this.modalConfirm)
+				const self = this
+				self.modalConfirm.action = 'primary'
+				self.modalConfirm.title = 'Save calendar'
+				self.modalConfirm.data = {'bus_id': self.company.bus_id}
+				self.modalConfirm.body = `Do you want to save calendar?`
+				self.modalConfirm.eventListener = 'modal-confirm-insert-scheduled-dates'
+				self.$bus.$emit('set-modal-confirm', self.modalConfirm)
 			},
-			insertScheduledDates (id) {
-				this.disabled = true
-				scheduledDatesService.InsertScheduledDates(id, this.selectedDays)
+			insertScheduledDates (data) {
+				const self = this
+				self.disabled = true
+				scheduledDatesService.InsertScheduledDates(data.bus_id, self.selectedDays)
 					.then(res => {
-						this.notification = res
-						this.$bus.$emit('set-notification', this.notification)
-						this.disabled = false
+						console.log(res)
+						self.notification = res
+						self.$bus.$emit('set-notification', self.notification)
+						self.disabled = false
 					})
 			}
 		},
 		watch: {
 			year () {
-				this.monthDays = []
-				this.getMonthDays()
+				const self = this
+				self.monthDays = []
+				self.getMonthDays()
 			}
 		}
 	}

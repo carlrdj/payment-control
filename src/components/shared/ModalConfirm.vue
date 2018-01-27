@@ -1,16 +1,18 @@
 <template lang="pug">
-	.modal(v-bind:class="{'is-active': showModalConfirm}")
-		.modal-background(v-on:click="deleteModalConfirm()")
-		.modal-card
-			header.modal-card-head
-				p.modal-card-title {{ modalConfirm.title }}
-				button.delete(aria-label="close", v-on:click="deleteModalConfirm()")
-			section.modal-card-body
-				content
-					p.has-text-dark {{ modalConfirm.body }}
-			footer.modal-card-foot
-				button.button.is-medium.is-success(v-on:click="acceptModalConfirm(modalConfirm.id)") Accept
-				button.button.is-medium(v-on:click="deleteModalConfirm()") Cancel
+	
+	.modal.fade(tabindex='-1', role='dialog', aria-labelledby='exampleModalCenterTitle', aria-hidden='true', v-bind:class="{'show': showModalConfirm}", v-bind:style="{display: styleDisplay}")
+		.modal-dialog.modal-dialog-centered(role='document')
+			.modal-content
+				.modal-header.text-white(v-bind:class="'bg-' + modalConfirm.action")
+					h5.modal-title {{ modalConfirm.title }}
+					.close.text-white(data-dismiss='modal', aria-label='Close', aria-hidden='true', v-on:click='deleteModalConfirm')
+						i.fa.fa-times(aria-hidden="true")
+				.modal-body
+					| {{ modalConfirm.body }}
+				.modal-footer
+					.btn.btn-light(v-on:click="deleteModalConfirm") Cancel
+					.btn(v-bind:class="'btn-' + modalConfirm.action", v-on:click="acceptModalConfirm(modalConfirm.data)") Accept
+
 </template>
 
 <script>
@@ -18,6 +20,7 @@
 		data ()	{
 			return {
 				modalConfirm: {},
+				styleDisplay: 'none',
 				showModalConfirm: false
 			}
 		},
@@ -26,16 +29,18 @@
 				this.modalConfirm = modalConfirm
 				if (modalConfirm) {
 					this.showModalConfirm = true
+					this.styleDisplay = 'block'
 				}
 			})
 		},
 		methods: {
 			deleteModalConfirm () {
 				this.showModalConfirm = false
+				this.styleDisplay = 'none'
 				this.modalConfirm = {}
 			},
-			acceptModalConfirm (id) {
-				this.$emit(this.modalConfirm.eventListener, id)
+			acceptModalConfirm (data) {
+				this.$emit(this.modalConfirm.eventListener, data)
 				this.deleteModalConfirm()
 			}
 		}

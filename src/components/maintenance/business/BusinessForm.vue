@@ -1,67 +1,85 @@
 <template lang="pug">
-	.container
-		.columns
-			.column.is-four-fifths
-				h1.title {{ title }}
-			.column.has-text-right
-				router-link.button.is-rounded.is-danger(to="/maintenance/business")
+	.container.main-container
+		.row.bg-white.rounded.box-shadow.mb-3.pt-2.pb-2
+			.col-8
+				h2 {{ title }}
+			.col-4.d-flex.align-items-center.flex-row-reverse
+				router-link.btn.btn-link(to="/maintenance/business")
 					span.icon
-						i.fa.fa-angle-left(aria-hidden='true')
+						i.fa.fa-chevron-left(aria-hidden='true')
 					span Back
-		.box
-			form(@submit.prevent="showModalConfirmSaveBusiness")
-				.columns.is-multiline
-					.column.is-half
-						.field
-							label.label Company name
-								span.tag.is-warning.is-pulled-right Required !
-							.control
-								input.input(type="text", placeholder="Company name", v-model="company.bus_fullname", required, :disabled="disabled")
 
-					.column.is-half
-						.field
-							label.label EIC
-								span.tag.is-warning.is-pulled-right Required !
-							.control
-								input.input(type="text", placeholder="EIC", v-model="company.bus_eic", required, :disabled="disabled")
+		.row.bg-white.rounded.box-shadow.pt-4.pb-4
+			.col-12
+				form.row(@submit.prevent="showModalConfirmSaveBusiness", v-bind:class="{'was-validated': formBusinessValidated}")
+					.col-12.col-sm-6
+						.form-group
+							label(for='bus_fullname') Company name
+								.badge.badge-danger Required !
+							input#bus_fullname.form-control(
+								type='text',
+								v-model="company.bus_fullname",
+								placeholder='Company name',
+								v-bind:disabled="disabled"
+								required)
 
-					.column.is-one-third
-						.field
-							label.label Way to pay
-								span.tag.is-warning.is-pulled-right Required !
-							.control
-								.select.is-fullwidth
-									select(v-model="company.bus_payment_method", required, :disabled="disabled")
-										option(value="", disabled) Select
-										option(value="1", :selected="company.bus_payment_method == 1") {{ 1 | payment-method-name}}
-										option(value="7", :selected="company.bus_payment_method == 1") {{ 7 | payment-method-name}}
-										option(value="15", :selected="company.bus_payment_method == 1") {{ 15 | payment-method-name}}
-										option(value="30", :selected="company.bus_payment_method == 1") {{ 30 | payment-method-name}}
+					.col-12.col-sm-6
+						.form-group
+							label(for='bus_eic') EIC
+								.badge.badge-danger Required !
+							input#bus_eic.form-control(
+								type='text',
+								v-model="company.bus_eic",
+								placeholder='EIC',
+								v-bind:disabled="disabled"
+								required)
 
-					.column.is-two-thirds
-						.field
-							label.label Address
-								span.tag.is-warning.is-pulled-right Required !
-							.control
-								input.input(type="text", placeholder="Address", v-model="company.bus_address", required, :disabled="disabled")
+					.col-12.col-sm-4
+						.form-group
+							label(for='bus_payment_method') Example select
+								.badge.badge-danger Required !
+							select#bus_payment_method.form-control(v-model="company.bus_payment_method", required, :disabled="disabled")
+								option(value="", disabled) Select
+								option(value="1", :selected="company.bus_payment_method == 1") {{ 1 | payment-method-name}}
+								option(value="7", :selected="company.bus_payment_method == 1") {{ 7 | payment-method-name}}
+								option(value="15", :selected="company.bus_payment_method == 1") {{ 15 | payment-method-name}}
+								option(value="30", :selected="company.bus_payment_method == 1") {{ 30 | payment-method-name}}
 
-					.column.is-two-quarter
-						.field
-							label.label Email
-								span.tag.is-warning.is-pulled-right Required !
-							.control
-								input.input(type="email", placeholder="Email", v-model="company.bus_email", required, :disabled="disabled")
+					.col-12.col-sm-8
+						.form-group
+							label(for='bus_address') Address
+								.badge.badge-danger Required !
+							input#bus_address.form-control(
+								type='text',
+								v-model="company.bus_address",
+								placeholder='Address',
+								v-bind:disabled="disabled"
+								required)
 
-					.column.is-two-quarter
-						.field
-							label.label Phone number
-							.control
-								input.input(type="text", placeholder="Phone number", v-model="company.bus_phone", :disabled="disabled")
+					.col-12.col-sm-6
+						.form-group
+							label(for='bus_email') Email
+								.badge.badge-danger Required !
+							input#bus_email.form-control(
+								type='email',
+								v-model="company.bus_email",
+								placeholder='Email',
+								v-bind:disabled="disabled"
+								required)
 
-					.column.is-12
-						.field.is-grouped.is-grouped-centered
-							.control
-								button.button.is-medium.is-link(type="submit", :disabled="disabled", v-bind:class="{'is-loading': disabled}") SAVE
+					.col-12.col-sm-6
+						.form-group
+							label(for='bus_phone') Phone number
+							input#bus_phone.form-control(
+								type='text',
+								v-model="company.bus_phone",
+								placeholder='Phone number',
+								v-bind:disabled="disabled")
+
+					.col-12.text-center
+						button.btn.btn-primary.btn-lg.pl-5.pr-5(type="submit", :disabled="disabled", v-on:click="validateFormBusiness") Save
+							i(v-bind:class="{'fa | fa-spinner | fa-pulse | fa-fw  | is-loading': disabled}")
+							
 
 		p-c-modal-confirm(
 		v-on:modal-confirm-insert-business="insertBusiness",
@@ -82,56 +100,69 @@
 				company: {},
 				notification: {},
 				modalConfirm: {},
-				disabled: false
+				disabled: false,
+				formBusinessValidated: false
 			}
 		},
 		created () {
+			const self = this
 			const id = this.$route.params.id
 			businessService.GetBusinessById(id)
 				.then(res => {
 					if (res) {
-						this.title = 'Edit business'
-						this.company = res
+						self.title = 'Edit business'
+						self.company = res
 					} else {
-						this.company = {}
+						self.company = {}
 					}
 				})
 		},
 		methods: {
+			validateFormBusiness () {
+				const self = this
+				self.formBusinessValidated = true
+			},
 			showModalConfirmSaveBusiness () {
-				if (this.company.bus_id) {
-					this.modalConfirm.title = 'Update company'
-					this.modalConfirm.id = this.company.bus_id
-					this.modalConfirm.body = `Do you want to update ${this.company.bus_fullname}?`
-					this.modalConfirm.eventListener = 'modal-confirm-update-business'
-					this.$bus.$emit('set-modal-confirm', this.modalConfirm)
+				const self = this
+				if (self.company.bus_id) {
+					self.modalConfirm.action = 'primary'
+					self.modalConfirm.title = 'Update company'
+					self.modalConfirm.data = {}
+					self.modalConfirm.body = `Do you want to update ${self.company.bus_fullname}?`
+					self.modalConfirm.eventListener = 'modal-confirm-update-business'
+					self.$bus.$emit('set-modal-confirm', self.modalConfirm)
 				} else {
-					this.modalConfirm.title = 'Add company'
-					this.modalConfirm.id = 0
-					this.modalConfirm.body = `Do you want to add company?`
-					this.modalConfirm.eventListener = 'modal-confirm-insert-business'
-					this.$bus.$emit('set-modal-confirm', this.modalConfirm)
+					self.modalConfirm.action = 'primary'
+					self.modalConfirm.title = 'Add company'
+					self.modalConfirm.data = {}
+					self.modalConfirm.body = `Do you want to add company?`
+					self.modalConfirm.eventListener = 'modal-confirm-insert-business'
+					self.$bus.$emit('set-modal-confirm', self.modalConfirm)
 				}
 			},
-			insertBusiness (id) {
-				this.disabled = true
-				businessService.InsertBusiness(this.company)
+			insertBusiness (data) {
+				const self = this
+				self.disabled = true
+				businessService.InsertBusiness(self.company)
 					.then(res => {
-						this.$router.push({ name: 'maintenance-business' })
-						this.notification = res
-						this.$bus.$emit('set-notification', this.notification)
-						this.disabled = false
+						self.$router.push({ name: 'maintenance-business' })
+						self.notification = res
+						self.$bus.$emit('set-notification', self.notification)
+						self.disabled = false
+						self.formBusinessValidated = false
 					})
 			},
-			updateBusiness (id) {
-				this.disabled = true
-				businessService.UpdateBusiness(this.company)
+			updateBusiness (data) {
+				const self = this
+				self.disabled = true
+				businessService.UpdateBusiness(self.company)
 					.then(res => {
-						this.notification = res
-						this.$bus.$emit('set-notification', this.notification)
-						this.$router.push({ name: 'maintenance-business' })
-						this.notification = {}
-						this.disabled = false
+						self.notification = res
+						self.$bus.$emit('set-notification', self.notification)
+						self.$router.push({ name: 'maintenance-business' })
+						self.notification = {}
+						self.disabled = false
+						self.formBusinessValidated = false
 					})
 			}
 		}

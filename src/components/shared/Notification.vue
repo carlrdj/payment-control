@@ -1,7 +1,8 @@
 <template lang="pug">
-	.notification.is-shadow(v-if="notification", v-show="showNotification", :class="notification.class")
-		button.delete(v-on:click="closeNotification()")
+	.notification.alert.text-white(role='alert', v-show="showNotification", :class="notification.class")
 		span {{ notification.message }}
+		.float-right(v-on:click="closeNotification()")
+			i.cursor-pointer.fa.fa-times(aria-hidden="true")
 </template>
 
 <script>
@@ -42,5 +43,6 @@
 		top: 70px;
 		right: 20px;
 		width: 310px;
+		z-index: 10
 	}
 </style>

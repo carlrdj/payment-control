@@ -1,50 +1,61 @@
 <template lang="pug">
-	.container
-		.columns
-			.column.is-four-fifths
-				h1.title {{ title }}
-			.column.has-text-right
-				router-link.button.is-rounded.is-danger(to="/maintenance/business")
+	.container.main-container
+		.row.bg-white.rounded.box-shadow.mb-3.pt-2.pb-2
+			.col-8
+				h2 {{ title }}
+			.col-4.d-flex.align-items-center.flex-row-reverse
+				router-link.btn.btn-link(to="/maintenance/business")
 					span.icon
-						i.fa.fa-angle-left(aria-hidden='true')
+						i.fa.fa-chevron-left(aria-hidden='true')
 					span Back
-		.box
-			.columns
-				.column
-					form(@submit.prevent="showModalConfirmSaveEmployees")
-						.columns
-							.column.is-four-fifths
-								.field
-									label.label Fullname
-										span.tag.is-warning.is-pulled-right Required !
-									.control
-										input.input(type="text", placeholder="Fullname", v-model="employee.emp_fullname", required, :disabled="disabled")
-							.column
-								.field.is-grouped.is-grouped-centered
-									.control
-										button.button.is-medium.is-link(type="submit", :disabled="disabled", v-bind:class="{'is-loading': disabled}") SAVE
-			.columns
-				.column
-					table.table.is-fullwidth.is-hoverable.is-striped
-						thead
-							tr
-								th Fullname
-								th.th-button
-								th.th-button
-						tbody
-							tr(v-for="emp in employees")
-								td(data-label="Fullname", v-bind:class="{ 'has-text-info | has-text-weight-bold':emp.emp_id == employee.emp_id }") {{ emp.emp_fullname }}
-								td.td-button
-									button.button.is-rounded.is-link(v-on:click="getEmployeesById(emp.emp_id)")
-										span.icon
-											i.fa.fa-pencil-square-o(aria-hidden='true')
-										span Edit
-								td.td-button
-									button.button.is-rounded.is-danger(v-on:click="showModalConfirmDeleteEmployees(emp.emp_id, emp.emp_fullname )")
-										span.icon
-											i.fa.fa-trash-o(aria-hidden='true')
-										span Delete
-					p-c-loader(v-show="isLoading")
+
+		.row.bg-white.rounded.box-shadow.mb-3.pt-4.pb-4
+			.col-12
+				form.row(@submit.prevent="showModalConfirmSaveEmployees", v-bind:class="{'was-validated': formEmployeesValidated}")
+					.col-12.col-sm-8
+						.form-group
+							label(for='emp_fullname') Fullname
+								.badge.badge-danger Required !
+							input#emp_fullname.form-control(
+								type='text',
+								v-model="employee.emp_fullname",
+								placeholder='Fullname',
+								v-bind:disabled="disabled"
+								required)
+
+					.col-12.col-sm-4.d-flex.align-items-center.justify-content-center
+						button.btn.btn-primary.btn-lg.pl-3.pr-3(type="submit", :disabled="disabled", v-on:click="validateFormEmployees") Save
+							i(v-bind:class="{'fa | fa-spinner | fa-pulse | fa-fw  | is-loading': disabled}")
+
+						.btn.btn-dark.btn-lg.ml-2.pl-3.pr-3(:disabled="disabled", v-on:click="cancelUpdateEmployees") Cancel
+							i(v-bind:class="{'fa | fa-spinner | fa-pulse | fa-fw  | is-loading': disabled}")
+
+		.row.bg-white.rounded.box-shadow.pt-4.pb-2
+			.col-12
+				table.table.table-striped.table-hover
+					thead
+						tr
+							th Fullname
+							th.th-button
+					tbody
+						tr(v-for="emp in employees", v-bind:class="{ 'bg-primary | text-white':emp.emp_id == employee.emp_id }")
+							td(data-label="Fullname") {{ emp.emp_fullname }}
+							td.td-button
+								.dropdown.dropleft
+									button#dropdownMenuButtonBusinessEmployees.btn.btn-link.dropdown-toggle.dropdown-toggle-split(data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
+										i.fa.fa-ellipsis-v(aria-hidden="true")
+									.dropdown-menu(aria-labelledby='dropdownMenuButtonBusinessEmployees')
+										.btn.btn-block.text-left(v-on:click="getEmployeesById(emp.emp_id)")
+											span.icon
+												i.fa.fa-pencil(aria-hidden='true')
+											span Edit
+
+										.btn.btn-block.text-left(v-on:click="showModalConfirmDeleteEmployees(emp.emp_id, emp.emp_fullname )")
+											span.icon
+												i.fa.fa-trash(aria-hidden='true')
+											span Remove
+		
+		p-c-loader(v-show="isLoading")
 
 		p-c-modal-confirm(
 		v-on:modal-confirm-insert-employees="insertEmployees",
@@ -73,101 +84,125 @@
 				modalConfirm: {},
 				notification: {},
 				isLoading: true,
-				disabled: false
+				disabled: false,
+				formEmployeesValidated: false
 			}
 		},
 		created () {
-			const id = this.$route.params.id
-			this.getListEmployeesByBusinessBy(id)
+			const self = this
+			const id = self.$route.params.id
+			self.getListEmployeesByBusinessBy(id)
 			businessService.GetBusinessById(id)
 				.then(res => {
-					this.company = res
-					this.title = `Employees of ${this.company.bus_fullname}`
+					self.company = res
+					self.title = `Employees of ${self.company.bus_fullname}`
 				})
 		},
 		computed: {
 			resultMessage () {
-				if (this.employees.length === 0) {
+				const self = this
+				if (self.employees.length === 0) {
 					return `No se encontraron resultados`
 				} else {
-					return `Encontrados: ${this.employees.length}`
+					return `Encontrados: ${self.employees.length}`
 				}
 			}
 		},
 		methods: {
+			validateFormEmployees () {
+				const self = this
+				self.formEmployeesValidated = true
+			},
 			getListEmployeesByBusinessBy (id) {
+				const self = this
 				employeesService.GetListEmployeesByBusinessBy(68)
 					.then(res => {
-						this.isLoading = false
-						this.employees = res
+						self.isLoading = false
+						self.employees = res
 					})
 			},
 			showModalConfirmSaveEmployees () {
-				if (this.employee.emp_id) {
-					this.modalConfirm.title = 'Update employee'
-					this.modalConfirm.id = this.company.bus_id
-					this.modalConfirm.body = `Do you want to update ${this.employee.emp_fullname}?`
-					this.modalConfirm.eventListener = 'modal-confirm-update-employees'
-					this.$bus.$emit('set-modal-confirm', this.modalConfirm)
+				const self = this
+				if (self.employee.emp_id) {
+					self.modalConfirm.action = 'primary'
+					self.modalConfirm.title = 'Update employee'
+					self.modalConfirm.data = {'bus_id': self.company.bus_id}
+					self.modalConfirm.body = `Do you want to update ${self.employee.emp_fullname}?`
+					self.modalConfirm.eventListener = 'modal-confirm-update-employees'
+					self.$bus.$emit('set-modal-confirm', self.modalConfirm)
 				} else {
-					this.modalConfirm.title = 'Add employee'
-					this.modalConfirm.id = this.company.bus_id
-					this.modalConfirm.body = `Do you want to add employee?`
-					this.modalConfirm.eventListener = 'modal-confirm-insert-employees'
-					this.$bus.$emit('set-modal-confirm', this.modalConfirm)
+					self.modalConfirm.action = 'primary'
+					self.modalConfirm.title = 'Add employee'
+					self.modalConfirm.data = {'bus_id': self.company.bus_id}
+					self.modalConfirm.body = `Do you want to add employee?`
+					self.modalConfirm.eventListener = 'modal-confirm-insert-employees'
+					self.$bus.$emit('set-modal-confirm', self.modalConfirm)
 				}
 			},
 			showModalConfirmDeleteEmployees (id, fullname) {
-				this.modalConfirm.title = 'Add employee'
-				this.modalConfirm.id = id
-				this.modalConfirm.body = `Do you want to remove ${fullname}?`
-				this.modalConfirm.eventListener = 'modal-confirm-delete-employees'
-				this.$bus.$emit('set-modal-confirm', this.modalConfirm)
+				const self = this
+				self.modalConfirm.action = 'danger'
+				self.modalConfirm.title = 'Remove employee'
+				self.modalConfirm.data = {'id': id}
+				self.modalConfirm.body = `Do you want to remove ${fullname}?`
+				self.modalConfirm.eventListener = 'modal-confirm-delete-employees'
+				self.$bus.$emit('set-modal-confirm', self.modalConfirm)
 			},
 			getEmployeesById (id) {
+				const self = this
 				employeesService.GetEmployeesById(id)
 					.then(res => {
-						this.employee = res
+						self.employee = res
 					})
 			},
-			insertEmployees (id) {
-				this.disabled = true
-				this.employee.bus_id = id
-				employeesService.InsertEmployees(this.employee)
+			insertEmployees (data) {
+				const self = this
+				self.disabled = true
+				self.employee.bus_id = data.bus_id
+				employeesService.InsertEmployees(self.employee)
 					.then(res => {
-						this.notification = res
-						this.$bus.$emit('set-notification', this.notification)
-						this.notification = {}
-						this.disabled = false
-						this.isLoading = true
-						this.getListEmployeesByBusinessBy(id)
+						self.notification = res
+						self.$bus.$emit('set-notification', self.notification)
+						self.notification = {}
+						self.disabled = false
+						self.isLoading = true
+						self.formEmployeesValidated = false
+						self.getListEmployeesByBusinessBy(data.bus_id)
 					})
-				this.employee = {}
+				self.employee = {}
 			},
-			updateEmployees (id) {
-				this.disabled = true
-				employeesService.UpdateEmployees(this.employee)
+			updateEmployees (data) {
+				const self = this
+				self.disabled = true
+				employeesService.UpdateEmployees(self.employee)
 					.then(res => {
-						this.notification = res
-						this.$bus.$emit('set-notification', this.notification)
-						this.notification = {}
-						this.disabled = false
-						this.isLoading = true
-						this.getListEmployeesByBusinessBy(id)
+						self.notification = res
+						self.$bus.$emit('set-notification', self.notification)
+						self.notification = {}
+						self.disabled = false
+						self.isLoading = true
+						self.formEmployeesValidated = false
+						self.getListEmployeesByBusinessBy(data.bus_id)
 					})
-				this.employee = {}
+				self.employee = {}
 			},
-			deleteEmployees (id) {
-				this.emp_ids.push({id})
-				this.isLoading = true
-				employeesService.DeleteEmployees(this.emp_ids)
+			cancelUpdateEmployees () {
+				const self = this
+				self.employee = {}
+			},
+			deleteEmployees (data) {
+				const self = this
+				let id = data.id
+				self.emp_ids.push({id})
+				self.isLoading = true
+				employeesService.DeleteEmployees(self.emp_ids)
 					.then(res => {
-						this.notification = res
-						this.$bus.$emit('set-notification', this.notification)
-						this.notification = {}
-						this.getListEmployeesByBusinessBy(this.company.bus_id)
+						self.notification = res
+						self.$bus.$emit('set-notification', self.notification)
+						self.notification = {}
+						self.getListEmployeesByBusinessBy(self.company.bus_id)
 					})
-				this.emp_ids = []
+				self.emp_ids = []
 			}
 		}
 	}

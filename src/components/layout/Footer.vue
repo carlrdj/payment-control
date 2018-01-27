@@ -1,15 +1,15 @@
 <template lang="pug">
-	footer.footer
+	footer.footer.bg-white
 		.container
-			.content
-				p
-					span.is-pulled-left
-						| v. 1.0.1
-					span.is-pulled-right
-						strong 
-						|  Developed by: 
-						a Dev7
+			.row
+				.col-lg-6.col-md-6.col-sm-4.col-3.text-left
+					span.text-primary.pl-2 V. 1.0.1
+				.col-lg-6.col-md-6.col-sm-8.col-9.text-right
+					span.pr-2
+						| Developed by: 
+						a(href='mailto:carl.rdj@gmail.com') Dev7
 						i.fa.fa-paw.fa-2x(aria-hidden="true")
+
 </template>
 
 <style>
@@ -25,14 +25,14 @@
 	.fa-paw{
 		transform: rotate(30deg);
 		position: absolute;
-		right: -35px;
+		right: -15px;
 		top: -4px;
 	}
 	@media screen and (max-width: 1100px) {
 		.fa-paw{
 			transform: rotate(-30deg);
 			position: absolute;
-			right: 150px;
+			right: 175px;
 			top: -4px;
 		}		
 	}

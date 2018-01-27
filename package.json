@@ -10,6 +10,7 @@
     "build": "cross-env NODE_ENV=production webpack --progress --hide-modules"
   },
   "dependencies": {
+    "bootstrap": "^4.0.0",
     "bulma": "^0.6.2",
     "bulma-extensions": "^0.7.1",
     "trae": "^1.4.2",

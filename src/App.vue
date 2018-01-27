@@ -1,6 +1,6 @@
 <template lang="pug">
 	#app
-		p-c-navbar
+		p-c-header
 		.section.section-for-menu-fixed-top
 			router-view
 		p-c-footer
@@ -8,11 +8,11 @@
 </template>
 
 <script>
-	import PCNavbar from '@/components/layout/Navbar.vue'
+	import PCHeader from '@/components/layout/Header.vue'
 	import PCFooter from '@/components/layout/Footer.vue'
 	export default {
 		name: 'app',
-		components: { PCNavbar, PCFooter }
+		components: { PCHeader, PCFooter }
 	}
 </script>
 

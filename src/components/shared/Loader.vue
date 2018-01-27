@@ -4,6 +4,12 @@
 
 <style lang="scss">
 	.loader {
+	  position: relative;
+
+		position: fixed;
+	  margin: auto;  
+	  top: 40%; left: 0; bottom: 0; right: 0;
+
 	  color: #1973dc;
 	  font-size: 90px;
 	  text-indent: -9999em;
@@ -12,7 +18,6 @@
 	  height: 1em;
 	  border-radius: 50%;
 	  margin: 72px auto;
-	  position: relative;
 	  -webkit-transform: translateZ(0);
 	  -ms-transform: translateZ(0);
 	  transform: translateZ(0);
